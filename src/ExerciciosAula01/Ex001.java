@@ -16,48 +16,38 @@ public class Ex001 {
 
 		opcao = teclado.nextInt();
 
-			switch (opcao) {
-			case 1:
-				System.out.println("digite o primeiro numero");
-				n1 = teclado.nextDouble();
-				System.out.println("digite o segundo numero");
-				n2 = teclado.nextDouble();
-				resultado = n1 + n2;
-				System.out.println("resultado: " + resultado);
-				break;
-				
-			case 2:
-				System.out.println("digite o primeiro numero");
-				n1 = teclado.nextDouble();
-				System.out.println("digite o segundo numero");
-				n2 = teclado.nextDouble();
-				resultado = n1 - n2;
-				System.out.println("resultado: " + resultado);
-				break;
-
-			case 3:
-				System.out.println("digite o primeiro numero");
-				n1 = teclado.nextDouble();
-				System.out.println("digite o segundo numero");
-				n2 = teclado.nextDouble();
-				resultado = n1 * n2;
-				System.out.println("resultado: " + resultado);
-				break;
-
-			case 4:
-				System.out.println("digite o primeiro numero");
-				n1 = teclado.nextDouble();
-				System.out.println("digite o segundo numero");
-				n2 = teclado.nextDouble();
-				resultado = n1 / n2;
-				System.out.println("resultado: " + resultado);
-				break;
-
-			default:
-				System.out.println("opção invalida");
-				break;
-
-			}
-
+		if (opcao == 1) {
+			System.out.println("digite o primeiro numero");
+			n1 = teclado.nextDouble();
+			System.out.println("digite o segundo numero");
+			n2 = teclado.nextDouble();
+			resultado = n1 + n2;
+			System.out.println("resultado: " + resultado);
+		} else if (opcao == 2) {
+			System.out.println("digite o primeiro numero");
+			n1 = teclado.nextDouble();
+			System.out.println("digite o segundo numero");
+			n2 = teclado.nextDouble();
+			resultado = n1 - n2;
+			System.out.println("resultado: " + resultado);
+		} else if (opcao == 3) {
+			System.out.println("digite o primeiro numero");
+			n1 = teclado.nextDouble();
+			System.out.println("digite o segundo numero");
+			n2 = teclado.nextDouble();
+			resultado = n1 * n2;
+			System.out.println("resultado: " + resultado);
+		} else if (opcao == 4) {
+			System.out.println("digite o primeiro numero");
+			n1 = teclado.nextDouble();
+			System.out.println("digite o segundo numero");
+			n2 = teclado.nextDouble();
+			resultado = n1 / n2;
+			System.out.println("resultado: " + resultado);
+		} else {
+			System.out.println("opção invalida!");
 		}
+
 	}
+
+}
