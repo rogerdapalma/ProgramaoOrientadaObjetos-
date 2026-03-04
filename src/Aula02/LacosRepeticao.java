@@ -2,7 +2,7 @@ package Aula02;
 
 import java.util.Scanner;
 
-public class Principal {
+public class LacosRepeticao {
 
 	public static void main(String[] args) {
 		// for | while e | do while | forech
