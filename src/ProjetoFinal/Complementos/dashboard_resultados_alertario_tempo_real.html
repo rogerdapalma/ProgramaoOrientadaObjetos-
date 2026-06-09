@@ -1,0 +1,917 @@
+<!-- arquivo: dashboard_resultados_alertario.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resultados | Sistema AlertaRio RS</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: rgba(15, 23, 42, 0.72);
+      --panel-strong: rgba(15, 23, 42, 0.9);
+      --text: #e5eefc;
+      --muted: #94a3b8;
+      --line: rgba(148, 163, 184, 0.15);
+      --shadow: 0 20px 50px rgba(2, 8, 23, 0.35);
+      --radius: 22px;
+      --low: #22c55e;
+      --moderate: #f59e0b;
+      --high: #f97316;
+      --critical: #ef4444;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.22), transparent 30%),
+        radial-gradient(circle at top right, rgba(14, 165, 233, 0.18), transparent 25%),
+        linear-gradient(180deg, #020617 0%, #0f172a 55%, #111827 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .container {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 30px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.94), rgba(15, 23, 42, 0.8));
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -60px -60px auto;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.22), transparent 70%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #d7f3ff;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.8rem, 3.2vw, 3rem);
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .meta-chip {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+      color: #dbeafe;
+      font-size: 0.93rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .stat-card {
+      padding: 20px;
+    }
+
+    .stat-title {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-helper {
+      color: #cbd5e1;
+      font-size: 0.92rem;
+    }
+
+    .section {
+      margin-top: 24px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+
+    .section-header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .city-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .city-card {
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .city-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: var(--risk-color, var(--accent));
+    }
+
+    .city-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .city-name {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin: 0 0 6px;
+    }
+
+    .city-subtitle {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: white;
+      background: var(--risk-color, var(--accent));
+      white-space: nowrap;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .metric-box {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+    }
+
+    .progress-wrap {
+      margin-bottom: 14px;
+    }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.86rem;
+      color: #dbeafe;
+      margin-bottom: 8px;
+    }
+
+    .progress {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.15);
+      overflow: hidden;
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, rgba(255,255,255,0.25), var(--risk-color, var(--accent)));
+    }
+
+    .message {
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.04);
+      color: #dce7f7;
+      font-size: 0.94rem;
+      line-height: 1.55;
+      min-height: 88px;
+    }
+
+    .table-card {
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    th, td {
+      padding: 14px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.95rem;
+    }
+
+    th {
+      color: #bfdbfe;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    td {
+      color: #e5eefc;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .pill {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: 1px solid currentColor;
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .low { color: var(--low); }
+    .moderate { color: var(--moderate); }
+    .high { color: var(--high); }
+    .critical { color: var(--critical); }
+
+    @media (max-width: 980px) {
+      .stats,
+      .city-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        width: min(100% - 20px, 1180px);
+        padding-top: 20px;
+      }
+
+      .hero,
+      .stat-card,
+      .city-card,
+      .table-card {
+        border-radius: 20px;
+      }
+
+      .stats,
+      .city-grid,
+      .metric-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-header {
+        align-items: start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="hero">
+      <div class="eyebrow"></div>
+      <h1>Resultados do Sistema AlertaRio RS</h1>
+      <p class="subtitle">
+        Interface pronta para exibir as medições de nível do rio, chuva e análise de risco das cidades monitoradas.
+        Os dados abaixo seguem a lógica do seu projeto e podem ser trocados facilmente no array JavaScript.
+      </p>
+      <div class="hero-meta">
+        <div class="meta-chip" id="metaAtualizacao">Atualizado em —</div>
+        <div class="meta-chip" id="metaCidades">0 cidades</div>
+        <div class="meta-chip" id="metaRegistros">0 registros</div>
+      </div>
+    </section>
+
+    <section class="stats" id="stats"></section>
+
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h2>Status por cidade</h2>
+          <p>Última medição consolidada com classificação automática de risco.</p>
+        </div>
+      </div>
+      <div class="city-grid" id="cityGrid"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h2>Histórico de medições</h2>
+          <p>Tabela com todas as leituras usadas para montar os resultados.</p>
+        </div>
+      </div>
+      <div class="card table-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Minuto</th>
+                <th>Cidade</th>
+                <th>Estado</th>
+                <th>Nível do Rio</th>
+                <th>Chuva</th>
+                <th>Risco</th>
+                <th>Mensagem</th>
+                <th>Data/Hora</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <p class="footer-note">
+        Para usar com dados reais, basta substituir o conteúdo do array <strong>historico</strong> no final do arquivo,
+        ou depois conectar esse HTML a um JSON gerado pelo seu Java.
+      </p>
+    </section>
+  </main>
+
+  
+  <script>
+
+    const TipoSensor = {
+      RIO: "RIO",
+      CHUVA: "CHUVA"
+    };
+
+    const NivelRisco = {
+      BAIXO: "BAIXO",
+      MODERADO: "MODERADO",
+      ALTO: "ALTO",
+      CRITICO: "CRÍTICO"
+    };
+
+    const INTERVALO_ATUALIZACAO_MS = 2000;
+    const MAX_MINUTOS_HISTORICO = 30;
+
+    const cidades = [
+      { nome: "Porto Alegre", estado: "RS", regiaoDeRisco: true },
+      { nome: "Caxias do Sul", estado: "RS", regiaoDeRisco: true },
+      { nome: "Santa Maria", estado: "RS", regiaoDeRisco: true }
+    ];
+
+    const sensores = [
+      { identificador: "RIO-POA-001", cidade: "Porto Alegre", tipoSensor: TipoSensor.RIO, nivelCritico: 5.0 },
+      { identificador: "CHUVA-POA-001", cidade: "Porto Alegre", tipoSensor: TipoSensor.CHUVA, chuvaCriticaEmMm: 80.0 },
+
+      { identificador: "RIO-CXS-001", cidade: "Caxias do Sul", tipoSensor: TipoSensor.RIO, nivelCritico: 4.5 },
+      { identificador: "CHUVA-CXS-001", cidade: "Caxias do Sul", tipoSensor: TipoSensor.CHUVA, chuvaCriticaEmMm: 75.0 },
+
+      { identificador: "RIO-SM-001", cidade: "Santa Maria", tipoSensor: TipoSensor.RIO, nivelCritico: 4.8 },
+      { identificador: "CHUVA-SM-001", cidade: "Santa Maria", tipoSensor: TipoSensor.CHUVA, chuvaCriticaEmMm: 70.0 }
+    ];
+
+    const simulacaoBase = {
+      "RIO-POA-001": [4.32, 5.18, 5.44],
+      "CHUVA-POA-001": [78.40, 103.20, 109.80],
+
+      "RIO-CXS-001": [3.71, 4.28, 4.63],
+      "CHUVA-CXS-001": [52.10, 83.70, 87.45],
+
+      "RIO-SM-001": [2.94, 3.48, 3.86],
+      "CHUVA-SM-001": [41.65, 57.90, 62.30]
+    };
+
+    const limitesPorTipo = {
+      [TipoSensor.RIO]: { min: 0.5, max: 5.8, oscilacao: 0.35 },
+      [TipoSensor.CHUVA]: { min: 0, max: 120, oscilacao: 12.5 }
+    };
+
+    const medicaoRepository = [];
+    const ultimoValorPorSensor = new Map();
+
+    let minutoAtual = 0;
+    let temporizador = null;
+
+    function arredondar(valor) {
+      return Math.round(valor * 100) / 100;
+    }
+
+    function limitar(valor, min, max) {
+      return Math.min(Math.max(valor, min), max);
+    }
+
+    function formatarNumero(valor) {
+      return Number(valor).toFixed(2).replace(".", ",");
+    }
+
+    function formatarDataHora(data) {
+      const ano = data.getFullYear();
+      const mes = String(data.getMonth() + 1).padStart(2, "0");
+      const dia = String(data.getDate()).padStart(2, "0");
+      const hora = String(data.getHours()).padStart(2, "0");
+      const minuto = String(data.getMinutes()).padStart(2, "0");
+      const segundo = String(data.getSeconds()).padStart(2, "0");
+
+      return `${ano}-${mes}-${dia} ${hora}:${minuto}:${segundo}`;
+    }
+
+    function buscarCidade(nomeCidade) {
+      return cidades.find((cidade) => cidade.nome === nomeCidade) ?? null;
+    }
+
+    function buscarUltimaMedicao(nomeCidade, tipoSensor) {
+      for (let i = medicaoRepository.length - 1; i >= 0; i -= 1) {
+        const medicao = medicaoRepository[i];
+        const mesmaCidade = medicao.cidade.nome.toLowerCase() === nomeCidade.toLowerCase();
+        const mesmoTipo = medicao.tipoSensor === tipoSensor;
+
+        if (mesmaCidade && mesmoTipo) {
+          return medicao;
+        }
+      }
+
+      return null;
+    }
+
+    function compararComMedicaoAnterior(valorAnterior, valorAtual) {
+      if (valorAtual > valorAnterior) {
+        return "AUMENTOU";
+      }
+
+      if (valorAtual < valorAnterior) {
+        return "DIMINUIU";
+      }
+
+      return "PERMANECEU IGUAL";
+    }
+
+    function registrarMedicao(sensor, valor, minuto, dataHora) {
+      if (valor < 0) {
+        throw new Error("O valor da medição não pode ser negativo.");
+      }
+
+      const cidade = buscarCidade(sensor.cidade);
+      const medicaoAnterior = buscarUltimaMedicao(sensor.cidade, sensor.tipoSensor);
+      const tendencia = medicaoAnterior
+        ? compararComMedicaoAnterior(medicaoAnterior.valor, valor)
+        : "PRIMEIRA MEDIÇÃO";
+
+      const novaMedicao = {
+        minuto,
+        cidade,
+        tipoSensor: sensor.tipoSensor,
+        identificadorSensor: sensor.identificador,
+        valor: arredondar(valor),
+        dataHora,
+        tendencia
+      };
+
+      medicaoRepository.push(novaMedicao);
+      ultimoValorPorSensor.set(sensor.identificador, novaMedicao.valor);
+
+      return novaMedicao;
+    }
+
+    function gerarValorEmTempoReal(sensor, minuto) {
+      const valoresFixos = simulacaoBase[sensor.identificador];
+
+      if (Array.isArray(valoresFixos) && valoresFixos[minuto - 1] !== undefined) {
+        return arredondar(valoresFixos[minuto - 1]);
+      }
+
+      const ultimoValor = ultimoValorPorSensor.get(sensor.identificador);
+      const limites = limitesPorTipo[sensor.tipoSensor];
+      const base = typeof ultimoValor === "number"
+        ? ultimoValor
+        : (sensor.tipoSensor === TipoSensor.RIO ? 2.5 : 40);
+
+      const direcao = Math.random() > 0.45 ? 1 : -1;
+      const variacao = Math.random() * limites.oscilacao * direcao;
+      const tendenciaExtra = Math.random() > 0.7 ? limites.oscilacao * 0.45 : 0;
+      const novoValor = base + variacao + tendenciaExtra;
+
+      return arredondar(limitar(novoValor, limites.min, limites.max));
+    }
+
+    function analisarRisco(nivelRio, chuvaEmMm) {
+      if (nivelRio >= 5.0 || chuvaEmMm >= 100.0) {
+        return NivelRisco.CRITICO;
+      }
+
+      if (nivelRio >= 4.0 || chuvaEmMm >= 80.0) {
+        return NivelRisco.ALTO;
+      }
+
+      if (nivelRio >= 3.0 || chuvaEmMm >= 50.0) {
+        return NivelRisco.MODERADO;
+      }
+
+      return NivelRisco.BAIXO;
+    }
+
+    function gerarMensagem(nivelRisco) {
+      if (nivelRisco === NivelRisco.CRITICO) {
+        return "Risco crítico de enchente. Recomenda-se alerta imediato para a população.";
+      }
+
+      if (nivelRisco === NivelRisco.ALTO) {
+        return "Risco alto de enchente. Acompanhar a elevação do rio e preparar medidas preventivas.";
+      }
+
+      if (nivelRisco === NivelRisco.MODERADO) {
+        return "Risco moderado. O sistema recomenda continuar monitorando a região.";
+      }
+
+      return "Risco baixo. Situação dentro dos limites normais.";
+    }
+
+    function obterClasseRisco(nivelRisco) {
+      if (nivelRisco === NivelRisco.CRITICO) {
+        return "critical";
+      }
+
+      if (nivelRisco === NivelRisco.ALTO) {
+        return "high";
+      }
+
+      if (nivelRisco === NivelRisco.MODERADO) {
+        return "moderate";
+      }
+
+      return "low";
+    }
+
+    function obterCorRisco(nivelRisco) {
+      if (nivelRisco === NivelRisco.CRITICO) {
+        return "var(--critical)";
+      }
+
+      if (nivelRisco === NivelRisco.ALTO) {
+        return "var(--high)";
+      }
+
+      if (nivelRisco === NivelRisco.MODERADO) {
+        return "var(--moderate)";
+      }
+
+      return "var(--low)";
+    }
+
+    function percentual(valor, limite) {
+      return Math.min((valor / limite) * 100, 100);
+    }
+
+    function consolidarAnalisePorCidade() {
+      return cidades.map((cidade) => {
+        const medicaoRio = buscarUltimaMedicao(cidade.nome, TipoSensor.RIO);
+        const medicaoChuva = buscarUltimaMedicao(cidade.nome, TipoSensor.CHUVA);
+
+        if (!medicaoRio || !medicaoChuva) {
+          return null;
+        }
+
+        const nivelRisco = analisarRisco(medicaoRio.valor, medicaoChuva.valor);
+
+        return {
+          minuto: Math.max(medicaoRio.minuto, medicaoChuva.minuto),
+          cidade: cidade.nome,
+          estado: cidade.estado,
+          regiaoDeRisco: cidade.regiaoDeRisco,
+          nivelRio: medicaoRio.valor,
+          chuva: medicaoChuva.valor,
+          dataHora: medicaoChuva.dataHora,
+          risco: {
+            nome: nivelRisco,
+            classe: obterClasseRisco(nivelRisco),
+            cor: obterCorRisco(nivelRisco),
+            mensagem: gerarMensagem(nivelRisco)
+          },
+          tendenciaRio: medicaoRio.tendencia,
+          tendenciaChuva: medicaoChuva.tendencia
+        };
+      }).filter(Boolean);
+    }
+
+    function consolidarHistoricoPorMinuto() {
+      const mapa = new Map();
+
+      medicaoRepository.forEach((medicao) => {
+        const chave = `${medicao.minuto}-${medicao.cidade.nome}`;
+
+        if (!mapa.has(chave)) {
+          mapa.set(chave, {
+            minuto: medicao.minuto,
+            cidade: medicao.cidade.nome,
+            estado: medicao.cidade.estado,
+            dataHora: medicao.dataHora,
+            nivelRio: null,
+            chuva: null,
+            tendenciaRio: "SEM DADO",
+            tendenciaChuva: "SEM DADO"
+          });
+        }
+
+        const registro = mapa.get(chave);
+
+        if (medicao.tipoSensor === TipoSensor.RIO) {
+          registro.nivelRio = medicao.valor;
+          registro.tendenciaRio = medicao.tendencia;
+        }
+
+        if (medicao.tipoSensor === TipoSensor.CHUVA) {
+          registro.chuva = medicao.valor;
+          registro.tendenciaChuva = medicao.tendencia;
+          registro.dataHora = medicao.dataHora;
+        }
+      });
+
+      return Array.from(mapa.values())
+        .filter((item) => item.nivelRio !== null && item.chuva !== null)
+        .map((item) => {
+          const nivelRisco = analisarRisco(item.nivelRio, item.chuva);
+
+          return {
+            ...item,
+            risco: {
+              nome: nivelRisco,
+              classe: obterClasseRisco(nivelRisco),
+              cor: obterCorRisco(nivelRisco),
+              mensagem: gerarMensagem(nivelRisco)
+            }
+          };
+        })
+        .sort((a, b) => a.minuto - b.minuto || a.cidade.localeCompare(b.cidade));
+    }
+
+    function limitarHistorico() {
+      const limiteRegistros = MAX_MINUTOS_HISTORICO * sensores.length;
+
+      while (medicaoRepository.length > limiteRegistros) {
+        medicaoRepository.shift();
+      }
+    }
+
+    function montarResumo(ultimos, historicoConsolidado) {
+      const totalCidades = ultimos.length;
+      const totalRegistros = medicaoRepository.length;
+      const alertasCriticos = ultimos.filter((item) => item.risco.nome === NivelRisco.CRITICO).length;
+      const mediaRio = totalCidades ? ultimos.reduce((acc, item) => acc + item.nivelRio, 0) / totalCidades : 0;
+      const mediaChuva = totalCidades ? ultimos.reduce((acc, item) => acc + item.chuva, 0) / totalCidades : 0;
+      const ultimaAtualizacao = historicoConsolidado[historicoConsolidado.length - 1]?.dataHora ?? "-";
+
+      document.getElementById("metaAtualizacao").textContent = `Atualizado em ${ultimaAtualizacao}`;
+      document.getElementById("metaCidades").textContent = `${totalCidades} cidades monitoradas`;
+      document.getElementById("metaRegistros").textContent = `${totalRegistros} medições processadas`;
+
+      const stats = [
+        {
+          titulo: "Cidades monitoradas",
+          valor: totalCidades,
+          ajuda: "Atualização automática em tempo real"
+        },
+        {
+          titulo: "Alertas críticos",
+          valor: alertasCriticos,
+          ajuda: "Quantidade na última leitura consolidada"
+        },
+        {
+          titulo: "Média do nível do rio",
+          valor: `${formatarNumero(mediaRio)} m`,
+          ajuda: "Última medição do sensor de rio por cidade"
+        },
+        {
+          titulo: "Média de chuva",
+          valor: `${formatarNumero(mediaChuva)} mm`,
+          ajuda: "Última medição do sensor de chuva por cidade"
+        }
+      ];
+
+      document.getElementById("stats").innerHTML = stats.map((item) => `
+        <article class="card stat-card">
+          <div class="stat-title">${item.titulo}</div>
+          <div class="stat-value">${item.valor}</div>
+          <div class="stat-helper">${item.ajuda}</div>
+        </article>
+      `).join("");
+    }
+
+    function montarCardsCidades(ultimos) {
+      document.getElementById("cityGrid").innerHTML = ultimos
+        .sort((a, b) => a.cidade.localeCompare(b.cidade))
+        .map((item) => {
+          const percentualRio = percentual(item.nivelRio, 5);
+          const percentualChuva = percentual(item.chuva, 100);
+
+          return `
+            <article class="card city-card" style="--risk-color: ${item.risco.cor}">
+              <div class="city-top">
+                <div>
+                  <h3 class="city-name">${item.cidade}</h3>
+                  <div class="city-subtitle">${item.estado} • Último minuto analisado: ${item.minuto}</div>
+                </div>
+                <span class="badge">${item.risco.nome}</span>
+              </div>
+
+              <div class="metric-grid">
+                <div class="metric-box">
+                  <div class="metric-label">Nível do rio</div>
+                  <div class="metric-value">${formatarNumero(item.nivelRio)} m</div>
+                </div>
+                <div class="metric-box">
+                  <div class="metric-label">Chuva registrada</div>
+                  <div class="metric-value">${formatarNumero(item.chuva)} mm</div>
+                </div>
+              </div>
+
+              <div class="progress-wrap">
+                <div class="progress-head">
+                  <span>Pressão do rio</span>
+                  <span>${Math.round(percentualRio)}%</span>
+                </div>
+                <div class="progress">
+                  <span style="width: ${percentualRio}%"></span>
+                </div>
+              </div>
+
+              <div class="progress-wrap">
+                <div class="progress-head">
+                  <span>Pressão da chuva</span>
+                  <span>${Math.round(percentualChuva)}%</span>
+                </div>
+                <div class="progress">
+                  <span style="width: ${percentualChuva}%"></span>
+                </div>
+              </div>
+
+              <div class="message">
+                ${item.risco.mensagem}<br><br>
+                <strong>Tendência do rio:</strong> ${item.tendenciaRio} <br>
+                <strong>Tendência da chuva:</strong> ${item.tendenciaChuva}
+              </div>
+            </article>
+          `;
+        }).join("");
+    }
+
+    function montarTabela(historicoConsolidado) {
+      const historicoOrdenado = [...historicoConsolidado]
+        .sort((a, b) => b.minuto - a.minuto || a.cidade.localeCompare(b.cidade));
+
+      document.getElementById("historyBody").innerHTML = historicoOrdenado.map((item) => `
+        <tr>
+          <td>${item.minuto}</td>
+          <td>${item.cidade}</td>
+          <td>${item.estado}</td>
+          <td>${formatarNumero(item.nivelRio)} m</td>
+          <td>${formatarNumero(item.chuva)} mm</td>
+          <td><span class="pill ${item.risco.classe}">${item.risco.nome}</span></td>
+          <td>
+            ${item.risco.mensagem}
+            <br><small>Rio: ${item.tendenciaRio} • Chuva: ${item.tendenciaChuva}</small>
+          </td>
+          <td>${item.dataHora}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderizarPainel() {
+      const ultimos = consolidarAnalisePorCidade();
+      const historicoConsolidado = consolidarHistoricoPorMinuto();
+
+      montarResumo(ultimos, historicoConsolidado);
+      montarCardsCidades(ultimos);
+      montarTabela(historicoConsolidado);
+    }
+
+    function processarNovoMinuto() {
+      minutoAtual += 1;
+      const dataHora = formatarDataHora(new Date());
+
+      sensores.forEach((sensor) => {
+        const valorSimulado = gerarValorEmTempoReal(sensor, minutoAtual);
+        registrarMedicao(sensor, valorSimulado, minutoAtual, dataHora);
+      });
+
+      limitarHistorico();
+      renderizarPainel();
+    }
+
+    function iniciarTempoReal() {
+      if (temporizador) {
+        clearInterval(temporizador);
+      }
+
+      processarNovoMinuto();
+      temporizador = setInterval(processarNovoMinuto, INTERVALO_ATUALIZACAO_MS);
+    }
+
+    iniciarTempoReal();
+
+  </script>
+
+</body>
+</html>
